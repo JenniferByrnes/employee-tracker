@@ -1,8 +1,9 @@
 const inquirer = require('inquirer');
+//const employeelogic = require('./routes/apiRoutes');
 
 var promptTask = 'temp';
 
-const firstQuestions = [
+const firstQuestion = [
     {
       type: 'list',
       name: 'task',
@@ -15,7 +16,8 @@ const firstQuestions = [
         'Add a department', 
         'Add a role', 
         'Add an employee', 
-        'Update an employee role'
+        'Update an employee role',
+        'Exit'
       ],
     },
   ]
@@ -78,7 +80,7 @@ const addADeptQuestions = [
   ]
 
 function ask() {
-  inquirer.prompt(firstQuestions).then((answers) => {
+  inquirer.prompt(firstQuestion).then((answers) => {
 
     //promptTask = JSON.stringify(answers.task, null, 2);
     promptTask = answers.task;
@@ -87,6 +89,7 @@ function ask() {
     switch (promptTask) {
       case 'View all departments':
         console.log("allDepts");
+        viewAllDepts();
         break;
       case 'View all roles':
         console.log("allRoles");
@@ -115,10 +118,7 @@ function ask() {
         })
         break;
       default:
-        console.log("no selection for promptTask", promptTask);
-        inquirer.prompt(nextQuestions).then((answers) => {
-          console.log("answers", answers);
-        })
+        console.log("Exiting because of ", promptTask);
       }
     })
   };
@@ -126,6 +126,27 @@ function ask() {
 
 ask();
 
+function viewAllDepts() {
+  console.log("Getting departments...\n");
+  // View all items in the department table
+  var query = "SELECT id AS ID, dept_name AS Department FROM department";
+  fetch('/api/department', {
+    method: 'GET'
+    },
+  );
+} 
 
+  connection.query(query, function (err, res) {
+      if (!err)
+          console.table('Department List: \n', res);
+      else
+          console.log('Error in the query');
+      // Re-prompt the user for what they would like to do
+      firstQuestion();
+  });
+}
+
+const viewAllDepts = () =>
+  
 
 
