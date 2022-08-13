@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const db = require('./db/');
 //const employeelogic = require('./routes/apiRoutes');
 
 var promptTask = 'temp';
@@ -93,13 +94,16 @@ function ask() {
         break;
       case 'View all roles':
         console.log("allRoles");
+        viewAllRoles();
         break;
       case 'View all employees':
         console.log("allEmps");
+        viewAllEmps();
         break;
       case 'Add a department':
         inquirer.prompt(addADeptQuestions).then((answers) => {
           console.log("answers", answers);
+          insertDept(answers);
         })
         break;
       case 'Add a role':
@@ -119,34 +123,63 @@ function ask() {
         break;
       default:
         console.log("Exiting because of ", promptTask);
+        break;
       }
     })
   };
-
 
 ask();
 
 function viewAllDepts() {
   console.log("Getting departments...\n");
-  // View all items in the department table
-  var query = "SELECT id AS ID, dept_name AS Department FROM department";
-  fetch('/api/department', {
-    method: 'GET'
-    },
-  );
+  db.viewAllDeptsDB()
+  .then(([rows]) => {
+    console.table(rows)
+
+  })
+  .then(
+    () => ask()
+  )
 } 
 
-  connection.query(query, function (err, res) {
-      if (!err)
-          console.table('Department List: \n', res);
-      else
-          console.log('Error in the query');
-      // Re-prompt the user for what they would like to do
-      firstQuestion();
-  });
-}
+function viewAllRoles() {
+  console.log("Getting employee roles...\n");
+  db.viewAllRolesDB()
+  .then(([rows]) => {
+    console.table(rows)
+  })
+  .then(
+    () => ask()
+  )
+} 
 
-const viewAllDepts = () =>
-  
+function viewAllEmps() {
+  console.log("Getting employees...\n");
+  db.viewAllEmpsDB()
+  .then(([rows]) => {
+    console.table(rows)
+  })
+  .then(
+    () => ask()
+  )
+} 
 
+;
 
+function insertDept(answers) {
+  console.log("Adding a Dept...\n");
+  console.log(answers);
+  db.insertDeptDB(answers)
+  .then((status) => {
+    console.log("status = ", status[0].affectedRows)
+    if (status[0].affectedRows ===1) {
+      console.log("row was added");
+    }
+    else {
+      console.log("row was not added, bummer");
+    }
+  })
+  .then(
+    () => ask()
+  )
+} 
