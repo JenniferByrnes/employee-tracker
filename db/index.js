@@ -51,6 +51,24 @@ class LogicSQL {
       LEFT JOIN employee m ON m.id = e.manager_id
       ;`)
   };
+  viewPlainEmpsDB = () => {
+    return this.db.promise().query(
+      `SELECT 
+      e.id AS e_id, 
+      e.first_name AS e_first_name, 
+      e.last_name AS e_last_name, 
+      emp_role.title, 
+      dept_name, 
+      salary, 
+      m.last_name AS m_last_name
+      FROM employee e
+      LEFT JOIN emp_role
+      ON e.role_id = emp_role.id
+      LEFT JOIN department
+      ON emp_role.department_id = department.id
+      LEFT JOIN employee m ON m.id = e.manager_id
+      ;`)
+  };
   viewManagersDB = () => {
     return this.db.promise().query(
       `SELECT 
@@ -85,14 +103,22 @@ class LogicSQL {
       })
       */
   };
+
   insertRoleDB = (answers, deptId) => {
     console.log(answers);
     return this.db.promise().query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${deptId}");`)
-  }
+  };
+
   insertEmpDB = (answers, roleId, managerId) => {
     console.log("answers = " , answers);
     return this.db.promise().query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answers.newEmpFirstName}", "${answers.newEmpLastName}", "${roleId}", "${managerId}");`)
-  }
+  };
+
+  updateEmployeeRoleDB = (employeeId, roleId) => {
+    return this.db.promise().query(`UPDATE employee SET role_id = ${roleId} WHERE id = ${employeeId};`)
+  };
 };
+
+
 
 module.exports = new LogicSQL(db);

@@ -57,14 +57,6 @@ const addAnEmpQuestions = [
   },
 ]
 
-const updtAnEmpQuestions = [
-  {
-    type: 'input',
-    name: 'udptEmpRole',
-    message: "What is this employee's new role?",
-  },
-]
-
 function ask() {
   inquirer.prompt(firstQuestion).then((answers) => {
 
@@ -103,9 +95,7 @@ function ask() {
         })
         break;
       case 'Update an employee role':
-        inquirer.prompt(updtAnEmpQuestions).then((answers) => {
-          console.log("answers", answers);
-        })
+        updateEmployeeRole();
         break;
       default:
         console.log("Exiting because of ", promptTask);
@@ -259,6 +249,59 @@ function insertEmp(answers) {
                         console.log("row was not added, bummer");
                       }
                     })
+                    .then(
+                      () => ask()
+                    )
+                })
+            })
+        })
+    })
+} 
+
+function updateEmployeeRole() {
+  console.log("Updating an Employee's role...\n");
+  db.viewPlainEmpsDB()
+    .then(([rows]) => {
+      let employeesInfo = rows;
+      //console.log('employeesInfo= ',employeesInfo)
+      const employeesChoice = employeesInfo.map(({ e_id, e_first_name, e_last_name, title }) => ({
+        name: `${e_first_name} ${e_last_name} - ${title}`,
+        value: e_id
+      }));
+      console.log('employeesChoice= ',employeesChoice)
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "employeeId",
+          message: "Which employee's role are you updating?",
+          choices: employeesChoice
+        }
+      ])
+        .then(res => {
+          const chosenEmp = res.employeeId;
+          console.log("res = ", res)
+          console.log("chosenEmp = ", chosenEmp)
+          db.viewPlainRolesDB()
+          .then(([rows]) => {
+            let rolesInfo = rows;
+            const roleChoice = rolesInfo.map(({ id, title }) => ({
+              name: `${title}`,
+              value: id
+            }));
+      
+            inquirer.prompt([
+              {
+                type: "list",
+                name: "roleId",
+                message: "What is this employee's new role?",
+                choices: roleChoice
+              }
+            ])
+              .then(res => {
+                const newEmpRoleId = res.roleId;
+                console.log("---chosenEmp = ", chosenEmp)
+                console.log("---newEmpRole = ", newEmpRoleId)
+                db.updateEmployeeRoleDB(chosenEmp, newEmpRoleId)
                     .then(
                       () => ask()
                     )
