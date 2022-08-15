@@ -152,7 +152,7 @@ class LogicSQL {
   deleteRoleDB = (roleId) => {
     return this.db.promise().query(`DELETE FROM emp_role WHERE id = ${roleId};`)
       .catch(err => {
-      console.log(err);
+      console.log(err);ext
     })
   };
 
