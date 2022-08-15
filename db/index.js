@@ -4,15 +4,18 @@ class LogicSQL {
   constructor(db) {
     this.db = db;
   }
+
   viewAllDeptsDB = () => {
     return this.db.promise().query(`SELECT dept_name AS "Department Name",
      id AS 'Department ID'
     FROM department ORDER BY dept_name;`)
   };
+
   viewPlainDeptsDB = () => {
     return this.db.promise().query(`SELECT id, dept_name
     FROM department ORDER BY dept_name;`)
   };
+
   viewAllRolesDB = () => {
     return this.db.promise().query(`SELECT title AS "Job Title", 
     emp_role.id AS "Role ID", 
@@ -22,6 +25,7 @@ class LogicSQL {
     ON emp_role.department_id = department.id
     ORDER BY title`)
   };
+
   viewPlainRolesDB = () => {
     return this.db.promise().query(
       `SELECT title, 
@@ -33,6 +37,7 @@ class LogicSQL {
       ON emp_role.department_id = department.id
       ORDER BY title`)
   };
+
   viewAllEmpsDB = () => {
     return this.db.promise().query(
       `SELECT 
@@ -42,7 +47,8 @@ class LogicSQL {
       emp_role.title AS "Job Title", 
       dept_name AS Department, 
       salary AS Salary, 
-      m.last_name AS manager_name
+      m.first_name AS "Mgr First Name",
+      m.last_name AS "Mgr Last Name"
       FROM employee e
       LEFT JOIN emp_role
       ON e.role_id = emp_role.id
@@ -51,6 +57,28 @@ class LogicSQL {
       LEFT JOIN employee m ON m.id = e.manager_id
       ;`)
   };
+
+  viewAllEmpsByMgrDB = () => {
+    return this.db.promise().query(
+      `SELECT 
+      m.first_name AS "Mgr First Name",
+      m.last_name AS "Mgr Last Name",
+      dept_name AS Department, 
+      e.id AS ID, 
+      e.first_name AS "First Name", 
+      e.last_name AS "Last Name", 
+      emp_role.title AS "Job Title", 
+      salary AS Salary
+      FROM employee e
+      LEFT JOIN emp_role
+      ON e.role_id = emp_role.id
+      LEFT JOIN department
+      ON emp_role.department_id = department.id
+      LEFT JOIN employee m ON m.id = e.manager_id
+      ORDER BY m.last_name
+      ;`)
+  };
+
   viewPlainEmpsDB = () => {
     return this.db.promise().query(
       `SELECT 
@@ -60,7 +88,9 @@ class LogicSQL {
       emp_role.title, 
       dept_name, 
       salary, 
-      m.last_name AS m_last_name
+      m.first_name AS m_first_name,
+      m.last_name AS m_last_name,
+      e.manager_id AS manager_id
       FROM employee e
       LEFT JOIN emp_role
       ON e.role_id = emp_role.id
@@ -69,6 +99,7 @@ class LogicSQL {
       LEFT JOIN employee m ON m.id = e.manager_id
       ;`)
   };
+
   viewManagersDB = () => {
     return this.db.promise().query(
       `SELECT 
@@ -83,42 +114,51 @@ class LogicSQL {
       WHERE manager_id IS NULL
       ;`)
   };
+
+  viewDeptSumDB = () => {
+    return this.db.promise().query(
+      `SELECT dept_name AS Department,SUM(salary) AS "Salary Total" FROM employee
+      LEFT JOIN emp_role ON employee.role_id = emp_role.id
+      LEFT JOIN department ON department_id = department.id
+      GROUP BY dept_name ORDER BY dept_name;`)
+  };
+
   insertDeptDB = (answers) => {
     console.log(answers);
-    return this.db.promise().query(`INSERT INTO department (dept_name) VALUES ("${answers.newDeptName}");`)
-    /* Another nice try
-    .then(
-      () => ask()
-      )
-      */
-    /* Nice try - need some error handling here  - duplicate deptname
-      .then((status) => {
-        console.log("status = ", status[0].affectedRows)
-        if (status[0].affectedRows ===1) {
-          console.log("row was added");
-        }
-        else {
-          console.log("row was not added, bummer");
-        }
-      })
-      */
+    try{return this.db.promise().query(`INSERT INTO department (dept_name) VALUES ("${answers.newDeptName}");`)
+    } catch{console.log("failure")}
   };
 
   insertRoleDB = (answers, deptId) => {
-    console.log(answers);
     return this.db.promise().query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${answers.newRoleName}", "${answers.newRoleSalary}", "${deptId}");`)
   };
 
   insertEmpDB = (answers, roleId, managerId) => {
-    console.log("answers = " , answers);
     return this.db.promise().query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answers.newEmpFirstName}", "${answers.newEmpLastName}", "${roleId}", "${managerId}");`)
   };
 
   updateEmployeeRoleDB = (employeeId, roleId) => {
     return this.db.promise().query(`UPDATE employee SET role_id = ${roleId} WHERE id = ${employeeId};`)
   };
+
+  updateEmployeeManagerDB = (employeeId, managerId) => {
+    return this.db.promise().query(`UPDATE employee SET manager_id = ${managerId} WHERE id = ${employeeId};`)
+  };
+
+  deleteDepartmentDB = (deptId) => {
+    return this.db.promise().query(`DELETE FROM department WHERE id = ${deptId};`)
+  };
+
+  deleteRoleDB = (roleId) => {
+    return this.db.promise().query(`DELETE FROM emp_role WHERE id = ${roleId};`)
+      .catch(err => {
+      console.log(err);
+    })
+  };
+
+  deleteEmployeeDB = (employeeId) => {
+    return this.db.promise().query(`DELETE FROM employee WHERE id = ${employeeId};`)
+  };
 };
-
-
 
 module.exports = new LogicSQL(db);

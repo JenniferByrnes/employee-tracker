@@ -1,6 +1,5 @@
 const inquirer = require('inquirer');
 const db = require('./db/');
-//const employeelogic = require('./routes/apiRoutes');
 
 var promptTask = 'temp';
 
@@ -14,10 +13,16 @@ const firstQuestion = [
         'View all departments',
         'View all roles',
         'View all employees',
+        'View all employees by manager',
+        'View salary totals by department',
         'Add a department',
         'Add a role',
         'Add an employee',
-        'Update an employee role',
+        "Update an employee's role",
+        "Update an employee's manager",
+        'Delete a department',
+        'Delete a role',
+        'Delete an employee',
         'Exit'
       ],
   },
@@ -28,6 +33,14 @@ const addADeptQuestions = [
     type: 'input',
     name: 'newDeptName',
     message: 'What is the name of the department to be added?',
+    validate: newDeptName => {
+      if (newDeptName) {
+        return true;
+      } else {
+        console.log("This field is required");
+        return false;
+      }
+    }
   },
 ]
 
@@ -36,11 +49,30 @@ const addARoleQuestions = [
     type: 'input',
     name: 'newRoleName',
     message: 'What is the name of the role to be added?',
+    validate: newRoleName => {
+      if (newRoleName) {
+        return true;
+      } else {
+        console.log("This field is required");
+        return false;
+      }
+    }
+    
   },
   {
-    type: 'input',
+    type: 'number',
     name: 'newRoleSalary',
     message: 'What is the salary for this role?',
+    validate: newRoleSalary => {
+    if (newRoleSalary) {
+      return true;
+    } else if (newRoleSalary === 0) {
+      return true;
+    } else {
+      console.log("This field is required");
+      return false;
+    }
+  }
   },
 ]
 
@@ -49,11 +81,27 @@ const addAnEmpQuestions = [
     type: 'input',
     name: 'newEmpFirstName',
     message: 'What is the first name of the employee to be added?',
+    validate: newEmpFirstName => {
+      if (newEmpFirstName) {
+        return true;
+      } else {
+        console.log("This field is required");
+        return false;
+      }
+    }
   },
   {
     type: 'input',
     name: 'newEmpLastName',
     message: 'What is the last name of the employee to be added?',
+    validate: newEmpLastName => {
+      if (newEmpLastName) {
+        return true;
+      } else {
+        console.log("This field is required");
+        return false;
+      }
+    }
   },
 ]
 
@@ -61,47 +109,57 @@ function ask() {
   inquirer.prompt(firstQuestion).then((answers) => {
 
     promptTask = answers.task;
-    console.log("promptTask=", promptTask);
 
     switch (promptTask) {
       case 'View all departments':
-        console.log("allDepts");
         viewAllDepts();
         break;
       case 'View all roles':
-        console.log("allRoles");
         viewAllRoles();
         break;
       case 'View all employees':
-        console.log("allEmps");
         viewAllEmps();
+        break;
+      case 'View all employees by manager':
+        viewAllEmpsByMgr();
+        break;
+      case 'View salary totals by department':
+        viewDeptSum();
         break;
       case 'Add a department':
         inquirer.prompt(addADeptQuestions).then((answers) => {
-          console.log("answers", answers);
           insertDept(answers);
         })
         break;
       case 'Add a role':
         inquirer.prompt(addARoleQuestions).then((answers) => {
-          console.log("answers", answers);
           insertRole(answers);
         })
         break;
       case 'Add an employee':
         inquirer.prompt(addAnEmpQuestions).then((answers) => {
-          console.log("answers", answers);
           insertEmp(answers);
         })
         break;
-      case 'Update an employee role':
+      case "Update an employee's role":
         updateEmployeeRole();
         break;
+      case "Update an employee's manager":
+        updateEmployeeManager();
+      break;
+      case 'Delete a department':
+        deleteDepartment();
+      break;
+      case 'Delete a role':
+        deleteRole();
+      break;
+      case 'Delete an employee':
+        deleteEmployee();
+      break;
+
       default:
-        console.log("Exiting because of ", promptTask);
-        //inquirer.prompt.ui.close();
+        console.log("Exiting");
         process.exit(1);
-        break;
     }
   })
 };
@@ -112,7 +170,8 @@ function viewAllDepts() {
   console.log("Getting departments...\n");
   db.viewAllDeptsDB()
     .then(([rows]) => {
-      console.table(rows)
+      console.table(rows);
+      console.log("\n");
     })
     .then(
       () => ask()
@@ -123,7 +182,8 @@ function viewAllRoles() {
   console.log("Getting employee roles...\n");
   db.viewAllRolesDB()
     .then(([rows]) => {
-      console.table(rows)
+      console.table(rows);
+      console.log("\n");
     })
     .then(
       () => ask()
@@ -134,7 +194,32 @@ function viewAllEmps() {
   console.log("Getting employees...\n");
   db.viewAllEmpsDB()
     .then(([rows]) => {
-      console.table(rows)
+      console.table(rows);
+      console.log("\n");
+    })
+    .then(
+      () => ask()
+    )
+};
+
+function viewAllEmpsByMgr() {
+  console.log("Getting employees...\n");
+  db.viewAllEmpsByMgrDB()
+    .then(([rows]) => {
+      console.table(rows);
+      console.log("\n");
+    })
+    .then(
+      () => ask()
+    )
+};
+
+function viewDeptSum() {
+  console.log("Getting total by department...\n");
+  db.viewDeptSumDB()
+    .then(([rows]) => {
+      console.table(rows);
+      console.log("\n");
     })
     .then(
       () => ask()
@@ -142,25 +227,29 @@ function viewAllEmps() {
 };
 
 function insertDept(answers) {
-  console.log("Adding a Dept...\n");
-  console.log(answers);
+  console.log("Adding a Department...\n");
   db.insertDeptDB(answers)
     .then((status) => {
-      console.log("status = ", status[0].affectedRows)
       if (status[0].affectedRows === 1) {
-        console.log("row was added");
+        console.log("Department was added");
       }
       else {
-        console.log("row was not added, bummer");
+        console.log("Department was not added, bummer");
       }
     })
     .then(
-      () => ask()
+      db.viewAllDeptsDB()
+      .then(([rows]) => {
+        console.table(rows);
+        console.log("\n");
+      })
+      .then(
+        () => ask()
+      )
     )
 }
 
 function insertRole(answers) {
-  console.log("Adding a Role...\n");
   db.viewPlainDeptsDB()
     .then(([rows]) => {
       let departments = rows;
@@ -178,31 +267,35 @@ function insertRole(answers) {
         }
       ])
         .then(res => {
-          console.log("res = ", res)
+          console.log("Adding a Role...\n");
           db.insertRoleDB(answers, res.deptId)
             .then((status) => {
-              console.log("status = ", status[0].affectedRows)
               if (status[0].affectedRows === 1) {
-                console.log("row was added");
+                console.log("Role was added");
               }
               else {
-                console.log("row was not added, bummer");
+                console.log("Role was not added, bummer");
               }
             })
             .then(
-              () => ask()
+              db.viewAllRolesDB()
+              .then(([rows]) => {
+                console.table(rows);
+                console.log("\n");
+              })
+              .then(
+                () => ask()
+              )
             )
         })
     })
 }
 
 function insertEmp(answers) {
-  console.log("Adding an Employee...\n");
-  console.log(answers);
+
   db.viewPlainRolesDB()
     .then(([rows]) => {
       let rolesInfo = rows;
-      console.log("rolesInfo=", rolesInfo)
       const roleChoice = rolesInfo.map(({ id, title }) => ({
         name: `${title}`,
         value: id
@@ -233,24 +326,32 @@ function insertEmp(answers) {
                 {
                   type: "list",
                   name: "managerId",
-                  message: "Which manager does this employ fall under?",
+                  message: "Which manager does this employee fall under?",
                   choices: managerChoice
                 }
               ])
                 .then(res => {
                   const newManagerId = res.managerId;
+                  console.log("Adding an Employee...\n");
                   db.insertEmpDB(answers, newEmpRole, newManagerId)
                     .then((status) => {
                       console.log("status = ", status[0].affectedRows)
                       if (status[0].affectedRows === 1) {
-                        console.log("row was added");
+                        console.log("Employee was added");
                       }
                       else {
-                        console.log("row was not added, bummer");
+                        console.log("Employee was not added, bummer");
                       }
                     })
                     .then(
-                      () => ask()
+                      db.viewAllEmpsDB()
+                      .then(([rows]) => {
+                        console.table(rows);
+                        console.log("\n");
+                      })
+                      .then(
+                        () => ask()
+                      )
                     )
                 })
             })
@@ -259,7 +360,7 @@ function insertEmp(answers) {
 } 
 
 function updateEmployeeRole() {
-  console.log("Updating an Employee's role...\n");
+
   db.viewPlainEmpsDB()
     .then(([rows]) => {
       let employeesInfo = rows;
@@ -299,14 +400,208 @@ function updateEmployeeRole() {
             ])
               .then(res => {
                 const newEmpRoleId = res.roleId;
-                console.log("---chosenEmp = ", chosenEmp)
-                console.log("---newEmpRole = ", newEmpRoleId)
+                console.log("Updating an Employee's role...\n");
                 db.updateEmployeeRoleDB(chosenEmp, newEmpRoleId)
                     .then(
-                      () => ask()
+                      db.viewAllEmpsDB()
+                      .then(([rows]) => {
+                        console.table(rows);
+                        console.log("\n");
+                      })
+                      .then(
+                        () => ask()
+                      )
                     )
                 })
             })
         })
     })
 } 
+
+function updateEmployeeManager() {
+
+  db.viewPlainEmpsDB()
+    .then(([rows]) => {
+      let employeesInfo = rows;
+      //console.log('employeesInfo= ',employeesInfo)
+      const employeesChoice = employeesInfo.map(({ e_id, e_first_name, e_last_name, m_first_name, m_last_name }) => ({
+        name: `${e_first_name} ${e_last_name} - ${m_first_name} ${m_last_name}`,
+        value: e_id
+      }));
+      console.log('employeesChoice= ',employeesChoice)
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "employeeId",
+          message: "Which employee's manager are you updating?",
+          choices: employeesChoice
+        }
+      ])
+        .then(res => {
+          const chosenEmp = res.employeeId;
+          console.log("res = ", res)
+          console.log("chosenEmp = ", chosenEmp)
+          db.viewManagersDB()
+          .then(([rows]) => {
+            let managersInfo = rows;
+            const managerChoice = managersInfo.map(({ id, first_name, last_name }) => ({
+              name: `${first_name} ${last_name}`,
+              value: id
+            }));
+      
+            inquirer.prompt([
+              {
+                type: "list",
+                name: "managerId",
+                message: "Who is this employee's new manager?",
+                choices: managerChoice
+              }
+            ])
+              .then(res => {
+                const newEmpManagerId = res.managerId;
+                console.log("Updating an Employee's manager...\n");
+                db.updateEmployeeManagerDB(chosenEmp, newEmpManagerId)
+                    .then(
+                      db.viewAllEmpsDB()
+                      .then(([rows]) => {
+                        console.table(rows);
+                        console.log("\n");
+                      })
+                      .then(
+                        () => ask()
+                      )
+                    )
+                })
+            })
+        })
+    })
+} 
+
+function deleteDepartment() {
+  db.viewPlainDeptsDB()
+    .then(([rows]) => {
+      let departments = rows;
+      const deptChoices = departments.map(({ id, dept_name }) => ({
+        name: `${dept_name}`,
+        value: id
+      }));
+
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "deptId",
+          message: "Which department do you wish to delete?",
+          choices: deptChoices
+        }
+      ])
+        .then(res => {
+          console.log("Deleting a department...\n");
+          db.deleteDepartmentDB(res.deptId)
+            .then((status) => {
+              console.log("status = ", status[0].affectedRows)
+              if (status[0].affectedRows === 1) {
+                console.log("Department was deleted");
+              }
+              else {
+                console.log("Department was not not deleted, bummer");
+              }
+            })
+            .then(
+              db.viewAllDeptsDB()
+              .then(([rows]) => {
+                console.table(rows);
+                console.log("\n");
+              })
+              .then(
+                () => ask()
+              )
+            )
+        })
+    })
+}
+
+function deleteRole() {
+  db.viewPlainRolesDB()
+    .then(([rows]) => {
+      let roles = rows;
+      const roleChoices = roles.map(({ id, title }) => ({
+        name: `${title}`,
+        value: id
+      }));
+
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "roleId",
+          message: "Which role do you wish to delete?",
+          choices: roleChoices
+        }
+      ])
+        .then(res => {
+          console.log("Deleting a role...\n");
+          db.deleteRoleDB(res.roleId)
+            .then((status) => {
+              console.log("status = ", status[0].affectedRows)
+              if (status[0].affectedRows === 1) {
+                console.log("role was deleted");
+              }
+              else {
+                console.log("role was not deleted, bummer");
+              }
+            })
+            .then(
+              db.viewAllRolesDB()
+              .then(([rows]) => {
+                console.table(rows);
+                console.log("\n");
+              })
+              .then(
+                () => ask()
+              )
+            )
+        })
+    })
+}
+
+function deleteEmployee() {
+  db.viewPlainEmpsDB()
+    .then(([rows]) => {
+      let employeesInfo = rows;
+      const employeesChoice = employeesInfo.map(({ e_id, e_first_name, e_last_name, title }) => ({
+        name: `${e_first_name} ${e_last_name} - ${title}`,
+        value: e_id
+      }));
+      console.log('employeesChoice= ',employeesChoice)
+      inquirer.prompt([
+        {
+          type: "list",
+          name: "employeeId",
+          message: "Which employee do you wish to delete?",
+          choices: employeesChoice
+        }
+      ])
+        .then(res => {
+          console.log("Deleting an employee...\n");
+          db.deleteEmployeeDB(res.employeeId)
+            .then((status) => {
+              console.log("status = ", status[0].affectedRows)
+              if (status[0].affectedRows === 1) {
+                console.log("employee was deleted");
+              }
+              else {
+                console.log("employee was not deleted, bummer");
+              }
+            })
+            .then(
+              db.viewAllEmpsDB()
+              .then(([rows]) => {
+                console.table(rows);
+                console.log("\n");
+              })
+              .then(
+                () => ask()
+              )
+            )
+        })
+    })
+}

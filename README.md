@@ -18,11 +18,14 @@ Allows a business owner to view and manage the departments, roles, and employees
 
 ## Installation
 
-Clone this repository and run index.js from the command line
+Clone this repository and run this line: npm init --y
+Install npm Package:  npm install mysql2
+And this one: npm i inquirer@8.2.4
+Include this one as well:  npm install console.table --save
 
 ## Usage
 
-Run index.js from the command line and answer command line prompts to view and manage business data
+Run index.js from the command line and answer command line prompts to view and manage business data.
 
 ## License
 
@@ -34,7 +37,7 @@ Fork the repository and do a pull request for your code to be reviewed.
 
 ## Tests
 
-Run "npm run test" from the command line in the __tests__ directory to test object classes.
+None
 
 ## Questions?
 
