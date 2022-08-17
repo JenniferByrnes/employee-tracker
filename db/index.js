@@ -55,6 +55,7 @@ class LogicSQL {
       LEFT JOIN department
       ON emp_role.department_id = department.id
       LEFT JOIN employee m ON m.id = e.manager_id
+      ORDER BY e.last_name
       ;`)
   };
 
@@ -97,6 +98,7 @@ class LogicSQL {
       LEFT JOIN department
       ON emp_role.department_id = department.id
       LEFT JOIN employee m ON m.id = e.manager_id
+      ORDER BY e.last_name
       ;`)
   };
 
@@ -112,6 +114,7 @@ class LogicSQL {
       LEFT JOIN emp_role
       ON e.role_id = emp_role.id
       WHERE manager_id IS NULL
+      ORDER BY e.last_name
       ;`)
   };
 
@@ -125,8 +128,7 @@ class LogicSQL {
 
   insertDeptDB = (answers) => {
     console.log(answers);
-    try{return this.db.promise().query(`INSERT INTO department (dept_name) VALUES ("${answers.newDeptName}");`)
-    } catch{console.log("failure")}
+    return this.db.promise().query(`INSERT INTO department (dept_name) VALUES ("${answers.newDeptName}");`)
   };
 
   insertRoleDB = (answers, deptId) => {

@@ -229,14 +229,6 @@ function viewDeptSum() {
 function insertDept(answers) {
   console.log("Adding a Department...\n");
   db.insertDeptDB(answers)
-    .then((status) => {
-      if (status[0].affectedRows === 1) {
-        console.log("Department was added");
-      }
-      else {
-        console.log("Department was not added, bummer");
-      }
-    })
     .then(
       db.viewAllDeptsDB()
       .then(([rows]) => {
@@ -269,14 +261,6 @@ function insertRole(answers) {
         .then(res => {
           console.log("Adding a Role...\n");
           db.insertRoleDB(answers, res.deptId)
-            .then((status) => {
-              if (status[0].affectedRows === 1) {
-                console.log("Role was added");
-              }
-              else {
-                console.log("Role was not added, bummer");
-              }
-            })
             .then(
               db.viewAllRolesDB()
               .then(([rows]) => {
@@ -311,12 +295,9 @@ function insertEmp(answers) {
       ])
         .then(res => {
           const newEmpRole = res.roleId;
-          console.log("res = ", res)
-          console.log("newEmpRole = ", newEmpRole)
           db.viewManagersDB()
             .then(([rows]) => {
               let managersInfo = rows;
-              console.log("managersInfo=", managersInfo)
               const managerChoice = managersInfo.map(({ id, first_name, last_name }) => ({
                 name: `${first_name} ${last_name}`,
                 value: id
@@ -334,15 +315,7 @@ function insertEmp(answers) {
                   const newManagerId = res.managerId;
                   console.log("Adding an Employee...\n");
                   db.insertEmpDB(answers, newEmpRole, newManagerId)
-                    .then((status) => {
-                      console.log("status = ", status[0].affectedRows)
-                      if (status[0].affectedRows === 1) {
-                        console.log("Employee was added");
-                      }
-                      else {
-                        console.log("Employee was not added, bummer");
-                      }
-                    })
+    
                     .then(
                       db.viewAllEmpsDB()
                       .then(([rows]) => {
@@ -497,15 +470,6 @@ function deleteDepartment() {
         .then(res => {
           console.log("Deleting a department...\n");
           db.deleteDepartmentDB(res.deptId)
-            .then((status) => {
-              console.log("status = ", status[0].affectedRows)
-              if (status[0].affectedRows === 1) {
-                console.log("Department was deleted");
-              }
-              else {
-                console.log("Department was not not deleted, bummer");
-              }
-            })
             .then(
               db.viewAllDeptsDB()
               .then(([rows]) => {
@@ -540,15 +504,6 @@ function deleteRole() {
         .then(res => {
           console.log("Deleting a role...\n");
           db.deleteRoleDB(res.roleId)
-            .then((status) => {
-              console.log("status = ", status[0].affectedRows)
-              if (status[0].affectedRows === 1) {
-                console.log("role was deleted");
-              }
-              else {
-                console.log("role was not deleted, bummer");
-              }
-            })
             .then(
               db.viewAllRolesDB()
               .then(([rows]) => {
@@ -583,15 +538,6 @@ function deleteEmployee() {
         .then(res => {
           console.log("Deleting an employee...\n");
           db.deleteEmployeeDB(res.employeeId)
-            .then((status) => {
-              console.log("status = ", status[0].affectedRows)
-              if (status[0].affectedRows === 1) {
-                console.log("employee was deleted");
-              }
-              else {
-                console.log("employee was not deleted, bummer");
-              }
-            })
             .then(
               db.viewAllEmpsDB()
               .then(([rows]) => {

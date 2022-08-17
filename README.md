@@ -1,6 +1,7 @@
 
 # Employee Tracker
 
+Class project to create a command-line application from scratch to manage a company's employee database, using Node.js, Inquirer, and MySQL.
 
 ## Description:
 
@@ -15,13 +16,16 @@ Allows a business owner to view and manage the departments, roles, and employees
 - [How to Contribute](#How-to-Contribute)
 - [Tests](#Tests)
 - [Questions?](#Questions)
+- [Video Walkthrough](#Video-Walkthrough)
 
 ## Installation
 
 Clone this repository and run this line: npm init --y
-Install npm Package:  npm install mysql2
-And this one: npm i inquirer@8.2.4
-Include this one as well:  npm install console.table --save
+Install the following:  
+
+  npm install mysql2
+  npm i inquirer@8.2.4
+  npm install console.table --save
 
 ## Usage
 
@@ -37,12 +41,16 @@ Fork the repository and do a pull request for your code to be reviewed.
 
 ## Tests
 
-None
+  Run db.sql to drop and add the database.
+  Run schemas.sql to create the tables.
+  Run seeds.sql to populate the tables with test data.
 
 ## Questions?
 
 GitHub profile: https://github.com/jenniferbyrnes
 
 Please address any questions to me at jennifer.byrnes@outlook.com
+
+## Video Walkthrough
   
   
