@@ -52,5 +52,7 @@ GitHub profile: https://github.com/jenniferbyrnes
 Please address any questions to me at jennifer.byrnes@outlook.com
 
 ## Video Walkthrough
+
+[Link] https://watch.screencastify.com/v/KVfaCo4CvIowrMlexXlD
   
   

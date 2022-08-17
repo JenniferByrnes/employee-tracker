@@ -3,6 +3,7 @@ const db = require('./db/');
 
 var promptTask = 'temp';
 
+// The inquirer menu
 const firstQuestion = [
   {
     type: 'list',
@@ -28,6 +29,7 @@ const firstQuestion = [
   },
 ]
 
+// Question needed to add a department
 const addADeptQuestions = [
   {
     type: 'input',
@@ -44,6 +46,7 @@ const addADeptQuestions = [
   },
 ]
 
+// Questions needed to add a role
 const addARoleQuestions = [
   {
     type: 'input',
@@ -76,6 +79,7 @@ const addARoleQuestions = [
   },
 ]
 
+// Questions needed to add an employee
 const addAnEmpQuestions = [
   {
     type: 'input',
@@ -105,7 +109,8 @@ const addAnEmpQuestions = [
   },
 ]
 
-function ask() {
+// Main menu logic - calls function to complete the user request
+function menu() {
   inquirer.prompt(firstQuestion).then((answers) => {
 
     promptTask = answers.task;
@@ -164,7 +169,8 @@ function ask() {
   })
 };
 
-ask();
+// The first menu call
+menu();
 
 function viewAllDepts() {
   console.log("Getting departments...\n");
@@ -174,7 +180,7 @@ function viewAllDepts() {
       console.log("\n");
     })
     .then(
-      () => ask()
+      () => menu()
     )
 };
 
@@ -186,7 +192,7 @@ function viewAllRoles() {
       console.log("\n");
     })
     .then(
-      () => ask()
+      () => menu()
     )
 };
 
@@ -198,19 +204,19 @@ function viewAllEmps() {
       console.log("\n");
     })
     .then(
-      () => ask()
+      () => menu()
     )
 };
 
 function viewAllEmpsByMgr() {
-  console.log("Getting employees...\n");
+  console.log("Getting employees by manager...\n");
   db.viewAllEmpsByMgrDB()
     .then(([rows]) => {
       console.table(rows);
       console.log("\n");
     })
     .then(
-      () => ask()
+      () => menu()
     )
 };
 
@@ -222,7 +228,7 @@ function viewDeptSum() {
       console.log("\n");
     })
     .then(
-      () => ask()
+      () => menu()
     )
 };
 
@@ -236,12 +242,13 @@ function insertDept(answers) {
         console.log("\n");
       })
       .then(
-        () => ask()
+        () => menu()
       )
     )
 }
 
 function insertRole(answers) {
+  // Allow user to select department from a list
   db.viewPlainDeptsDB()
     .then(([rows]) => {
       let departments = rows;
@@ -268,7 +275,7 @@ function insertRole(answers) {
                 console.log("\n");
               })
               .then(
-                () => ask()
+                () => menu()
               )
             )
         })
@@ -277,6 +284,7 @@ function insertRole(answers) {
 
 function insertEmp(answers) {
 
+  // Allow user to select role from a list
   db.viewPlainRolesDB()
     .then(([rows]) => {
       let rolesInfo = rows;
@@ -323,7 +331,7 @@ function insertEmp(answers) {
                         console.log("\n");
                       })
                       .then(
-                        () => ask()
+                        () => menu()
                       )
                     )
                 })
@@ -334,6 +342,7 @@ function insertEmp(answers) {
 
 function updateEmployeeRole() {
 
+  // Allow user to select employee from a list
   db.viewPlainEmpsDB()
     .then(([rows]) => {
       let employeesInfo = rows;
@@ -382,7 +391,7 @@ function updateEmployeeRole() {
                         console.log("\n");
                       })
                       .then(
-                        () => ask()
+                        () => menu()
                       )
                     )
                 })
@@ -392,7 +401,7 @@ function updateEmployeeRole() {
 } 
 
 function updateEmployeeManager() {
-
+  // Allow user to select employee from a list
   db.viewPlainEmpsDB()
     .then(([rows]) => {
       let employeesInfo = rows;
@@ -441,7 +450,7 @@ function updateEmployeeManager() {
                         console.log("\n");
                       })
                       .then(
-                        () => ask()
+                        () => menu()
                       )
                     )
                 })
@@ -451,6 +460,7 @@ function updateEmployeeManager() {
 } 
 
 function deleteDepartment() {
+  // Allow user to select department from a list
   db.viewPlainDeptsDB()
     .then(([rows]) => {
       let departments = rows;
@@ -477,7 +487,7 @@ function deleteDepartment() {
                 console.log("\n");
               })
               .then(
-                () => ask()
+                () => menu()
               )
             )
         })
@@ -485,6 +495,7 @@ function deleteDepartment() {
 }
 
 function deleteRole() {
+  // Allow user to select role from a list
   db.viewPlainRolesDB()
     .then(([rows]) => {
       let roles = rows;
@@ -511,7 +522,7 @@ function deleteRole() {
                 console.log("\n");
               })
               .then(
-                () => ask()
+                () => menu()
               )
             )
         })
@@ -519,6 +530,7 @@ function deleteRole() {
 }
 
 function deleteEmployee() {
+  // Allow user to select employee from a list
   db.viewPlainEmpsDB()
     .then(([rows]) => {
       let employeesInfo = rows;
@@ -545,7 +557,7 @@ function deleteEmployee() {
                 console.log("\n");
               })
               .then(
-                () => ask()
+                () => menu()
               )
             )
         })
